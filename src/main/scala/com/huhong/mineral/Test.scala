@@ -11,47 +11,30 @@ import akka.routing.RoundRobinRouter
 import akka.routing.SmallestMailboxRouter
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
+import com.huhong.mineral.util.SystemContext
+import org.apache.lucene.store.FSDirectory
+import java.io.File
+import org.apache.lucene.index.IndexReader
+import org.apache.lucene.index.IndexWriter
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.NotFileFilter
+import org.apache.commons.io.filefilter.TrueFileFilter
+import org.apache.commons.io.filefilter.DirectoryFileFilter
 
 object Test extends App {
+  SystemContext.configDB = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "config.yap");
+  Mineral.start;
+  val index = Mineral.getIndex("test");
 
-  private val controllers: collection.mutable.ConcurrentMap[String, String] = new ConcurrentHashMap[String, String]();
-  controllers.put("1", "1");
-  
- 
-  exit;
-  class Tester extends Actor {
-    var greeting = ""
+  for (i ← 0 until 20)
+    index ! "";
 
-    def receive = {
-      case _ ⇒ {
-        println(Thread.currentThread().getName());
-        Thread.sleep(2000);
-      }
+  //  val fs = FSDirectory.open(new File("/Users/admin/Documents/mineral/mineral/testindex/1"));
+  //  println(fs.getLockID());
+  //
+  //  println(IndexWriter.isLocked(fs));
+  //
 
-    }
-  }
-
-  val customConf = ConfigFactory.parseString("""
-      akka.actor.deployment {
-        /test-akka1{
-          router = "round-robin"
-          nr-of-instances = 20
-        }
-      }
-      """)
-
-  val conf = ConfigFactory.load(customConf);
-  val system = ActorSystem("helloakka", conf.getConfig("akka.actor.deployment"));
-
-  // Create the 'tester' actor
-  val props = Props[Tester];
-
-  val tester =
-    system.actorOf(
-      props.withRouter(SmallestMailboxRouter(10)), "test-akka1")
-  for (i ← 0 to 21)
-    //spawn {
-    tester ! "hi";
-  //}
-
+  //  val dirs = FileUtils.listFilesAndDirs(new File("/Users/admin/Documents/mineral/mineral/testindex"), new NotFileFilter(TrueFileFilter.INSTANCE), DirectoryFileFilter.DIRECTORY);
+  //  dirs.filter(f ⇒ { !f.getPath().equals("/Users/admin/Documents/mineral/mineral/testindex") }).foreach(d ⇒ { println(d.getPath()) })
 }

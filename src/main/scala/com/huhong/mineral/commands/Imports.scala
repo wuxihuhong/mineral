@@ -4,9 +4,9 @@ import com.huhong.mineral.util.SystemContext
 import com.huhong.mineral.configs.IndexConfig
 import java.util.Date
 import com.db4o.query.Predicate
-
 import com.huhong.mineral.util.Imports._
 import com.huhong.mineral.util.ConfigHelper
+import com.huhong.mineral.Mineral
 
 object Imports {
   def quit() = {
@@ -21,9 +21,9 @@ object Imports {
     SystemContext.configDB;
   }
 
-  def createIndex(name: String, targetDir: String, writeThreadCount: Int = 20) = {
+  def createIndex(name: String, targetDir: String, analyzer: String = "default", writeThreadCount: Int = 20) = {
     try {
-      ConfigHelper.createIndex(name, targetDir, writeThreadCount);
+      ConfigHelper.createIndex(name, targetDir, analyzer, writeThreadCount);
     } catch {
       case e: Exception ⇒ {
         error(e);
@@ -40,4 +40,6 @@ object Imports {
   }
 
   def showidx() = ConfigHelper.listConfigName;
+
+  val $ = Mineral;
 }

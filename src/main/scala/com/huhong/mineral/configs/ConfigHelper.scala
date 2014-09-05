@@ -9,7 +9,7 @@ import com.huhong.mineral.util.Imports._
 
 object ConfigHelper {
   @throws(classOf[MineralExpcetion])
-  def createIndex(name: String, targetDir: String, writeThreadCount: Int = 20) = {
+  def createIndex(name: String, targetDir: String, analyzer: String, writeThreadCount: Int = 20) = {
     val rets = configDB.query(new Predicate[IndexConfig]() {
 
       def `match`(c: IndexConfig): Boolean = {
@@ -19,7 +19,7 @@ object ConfigHelper {
     if (rets.size() > 0) {
       throws(0, "索引已经存在!");
     }
-    val c = IndexConfig(name, targetDir, writeThreadCount, true, new Date, 0);
+    val c = IndexConfig(name, targetDir, analyzer, writeThreadCount, true, new Date, 0);
 
     configDB.store(c);
     configDB.commit();
@@ -38,6 +38,16 @@ object ConfigHelper {
     } else {
       null;
     }
+  }
+
+  def getConfigs() = {
+    configDB.query(new Predicate[IndexConfig]() {
+
+      def `match`(c: IndexConfig): Boolean = {
+        c.enabled == true
+      }
+    });
+
   }
 
   def listConfigName() = {

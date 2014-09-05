@@ -7,7 +7,7 @@ import java.util.Date
 import com.huhong.mineral.error.MineralExpcetion
 import com.huhong.mineral.util.Imports._
 
-object IndexHelper {
+object ConfigHelper {
   @throws(classOf[MineralExpcetion])
   def createIndex(name: String, targetDir: String, writeThreadCount: Int = 20) = {
     val rets = configDB.query(new Predicate[IndexConfig]() {

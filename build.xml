@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project mineral with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <jar destfile="/Users/admin/Documents/mineral/mineral/dist/mineral.jar">
+            <manifest>
+                <attribute name="Main-Class" value="com.huhong.mineral.JMain"/>
+                <attribute name="Class-Path" value=". mineral_lib/akka-actor_2.10-2.3.5.jar mineral_lib/akka-agent_2.10-2.3.5.jar mineral_lib/akka-camel_2.10-2.3.5.jar mineral_lib/akka-cluster_2.10-2.3.5.jar mineral_lib/akka-contrib_2.10-2.3.5.jar mineral_lib/akka-dataflow_2.10-2.3.5.jar mineral_lib/akka-durable-mailboxes-2.3.5.jar mineral_lib/akka-file-mailbox_2.10-2.3.5.jar mineral_lib/akka-kernel_2.10-2.3.5.jar mineral_lib/akka-mailboxes-common_2.10-2.3.5.jar mineral_lib/akka-multi-node-testkit_2.10-2.3.5.jar mineral_lib/akka-persistence-experimental_2.10-2.3.5.jar mineral_lib/akka-persistence-tck-experimental_2.10-2.3.5.jar mineral_lib/akka-remote_2.10-2.3.5.jar mineral_lib/akka-remote-tests_2.10-2.3.5.jar mineral_lib/akka-slf4j_2.10-2.3.5.jar mineral_lib/akka-testkit_2.10-2.3.5.jar mineral_lib/akka-transactor_2.10-2.3.5.jar mineral_lib/akka-zeromq_2.10-2.3.5.jar mineral_lib/camel-core-2.10.3.jar mineral_lib/config-1.2.1.jar mineral_lib/guava-12.0.jar mineral_lib/hamcrest-core-1.3.jar mineral_lib/hawtjni-runtime-1.8.jar mineral_lib/jline.jar mineral_lib/jna-3.0.9.jar mineral_lib/jnr-constants-0.8.2.jar mineral_lib/jsr305-1.3.9.jar mineral_lib/junit-4.11.jar mineral_lib/leveldb-0.5.jar mineral_lib/leveldb-api-0.5.jar mineral_lib/leveldbjni-1.7.jar mineral_lib/leveldbjni-all-1.7.jar mineral_lib/leveldbjni-linux32-1.5.jar mineral_lib/leveldbjni-linux64-1.5.jar mineral_lib/leveldbjni-osx-1.5.jar mineral_lib/leveldbjni-win32-1.5.jar mineral_lib/leveldbjni-win64-1.5.jar mineral_lib/lucene-core-4.9.0.jar mineral_lib/netty-3.8.0.Final.jar mineral_lib/protobuf-java-2.5.0.jar mineral_lib/scala-stm_2.10-0.7.jar mineral_lib/scalatest_2.10-2.1.3.jar mineral_lib/slf4j-api-1.7.5.jar mineral_lib/uncommons-maths-1.2.2a.jar mineral_lib/zeromq-scala-binding_2.10-0.0.7.jar mineral_lib/scala-actors.jar mineral_lib/scala-compiler.jar mineral_lib/scala-library.jar mineral_lib/scala-reflect.jar mineral_lib/scala-swing.jar mineral_lib/commons-codec-1.5.jar mineral_lib/commons-collections-3.2.1.jar mineral_lib/commons-compress-1.3.jar mineral_lib/commons-io-2.4.jar mineral_lib/commons-lang-2.3.jar mineral_lib/commons-lang3-3.1.jar mineral_lib/commons-logging-1.1.1.jar mineral_lib/commons-vfs-1.0.jar"/>
+            </manifest>
+            <fileset dir="/Users/admin/Documents/mineral/mineral/bin"/>
+        </jar>
+        <delete dir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <mkdir dir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-actor_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-agent_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-camel_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-cluster_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-contrib_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-dataflow_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-durable-mailboxes-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-file-mailbox_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-kernel_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-mailboxes-common_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-multi-node-testkit_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-persistence-experimental_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-persistence-tck-experimental_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-remote_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-remote-tests_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-slf4j_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-testkit_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-transactor_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/akka-zeromq_2.10-2.3.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/camel-core-2.10.3.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/config-1.2.1.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/guava-12.0.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/hamcrest-core-1.3.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/hawtjni-runtime-1.8.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/jline.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/jna-3.0.9.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/jnr-constants-0.8.2.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/jsr305-1.3.9.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/junit-4.11.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldb-0.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldb-api-0.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldbjni-1.7.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldbjni-all-1.7.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldbjni-linux32-1.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldbjni-linux64-1.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldbjni-osx-1.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldbjni-win32-1.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/leveldbjni-win64-1.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/lucene-core-4.9.0.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/netty-3.8.0.Final.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/protobuf-java-2.5.0.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/scala-stm_2.10-0.7.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/scalatest_2.10-2.1.3.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/slf4j-api-1.7.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/uncommons-maths-1.2.2a.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/zeromq-scala-binding_2.10-0.0.7.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/deplib/scala-actors.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/deplib/scala-compiler.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/deplib/scala-library.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/deplib/scala-reflect.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/deplib/scala-swing.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/commons-codec-1.5.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/commons-collections-3.2.1.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/commons-compress-1.3.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/commons-io-2.4.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/commons-lang-2.3.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/commons-lang3-3.1.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/commons-logging-1.1.1.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+        <copy file="/Users/admin/Documents/mineral/mineral/lib/commons-vfs-1.0.jar" todir="/Users/admin/Documents/mineral/mineral/dist/mineral_lib"/>
+    </target>
+</project>

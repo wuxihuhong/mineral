@@ -20,14 +20,38 @@ import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.NotFileFilter
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.apache.commons.io.filefilter.DirectoryFileFilter
+import org.apache.lucene.document.Document
+import org.apache.lucene.document.Field
+import java.util.UUID
+import org.apache.lucene.document.FieldType
+import com.huhong.mineral.messages.Documents
+import org.apache.lucene.util.Version
 
 object Test extends App {
   SystemContext.configDB = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "config.yap");
   Mineral.start;
+
+//  import com.huhong.mineral.commands.Imports._
+//  createIndex("test", "/Users/admin/Documents/mineral/mineral/testindex", "default", 10, Version.LUCENE_30);
+//
+//  exit;
   val index = Mineral.getIndex("test");
 
-  for (i ← 0 until 20)
-    index ! "";
+  val doc = new Document;
+  val fd = new FieldType;
+  fd.setIndexed(true);
+  fd.setStored(true);
+
+  val idf = new Field("id", UUID.randomUUID().toString(), fd);
+  doc.add(idf);
+  val titlef = new Field("title", "标题", fd);
+  val contentf = new Field("content", "胡宏伟大啊！", fd);
+  doc.add(titlef);
+  doc.add(contentf);
+
+  val docs = Documents(Array(doc))
+  for (i ← 0 until 5)
+    index ! docs;
 
   //  val fs = FSDirectory.open(new File("/Users/admin/Documents/mineral/mineral/testindex/1"));
   //  println(fs.getLockID());

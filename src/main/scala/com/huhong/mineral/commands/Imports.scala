@@ -7,6 +7,7 @@ import com.db4o.query.Predicate
 import com.huhong.mineral.util.Imports._
 import com.huhong.mineral.util.ConfigHelper
 import com.huhong.mineral.Mineral
+import org.apache.lucene.util.Version
 
 object Imports {
   def quit() = {
@@ -21,9 +22,9 @@ object Imports {
     SystemContext.configDB;
   }
 
-  def createIndex(name: String, targetDir: String, analyzer: String = "default", writeThreadCount: Int = 20) = {
+  def createIndex(name: String, targetDir: String, analyzer: String = "default", writeThreadCount: Int = 20, version: Version = Version.LUCENE_4_0) = {
     try {
-      ConfigHelper.createIndex(name, targetDir, analyzer, writeThreadCount);
+      ConfigHelper.createIndex(name, targetDir, analyzer, writeThreadCount, version);
     } catch {
       case e: Exception ⇒ {
         error(e);

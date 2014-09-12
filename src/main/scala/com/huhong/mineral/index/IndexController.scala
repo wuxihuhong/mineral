@@ -19,11 +19,25 @@ import org.apache.commons.io.filefilter.NotFileFilter
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.apache.commons.io.filefilter.DirectoryFileFilter
 import java.util.UUID
+import org.apache.lucene.index.IndexReader
 
 //控制索引的所有witer
 class IndexController(private val indexconfig: IndexConfig) {
   val indexwriters: ThreadLocal[IndexWriter] = new ThreadLocal[IndexWriter];
+  val indexreaders: ThreadLocal[IndexReaderHolder] = new ThreadLocal[IndexReaderHolder];
 
+  @volatile var childrenIndexDirs: List[File] = listChildrenDirs(indexconfig.getTargetDir);
+
+  def getReader() = {
+    var readerHolder = indexreaders.get();
+    if (readerHolder == null) {
+      val rh = new IndexReaderHolder(childrenIndexDirs);
+      indexreaders.set(rh);
+      readerHolder = rh;
+    }
+    readerHolder;
+
+  }
   def getWriter() = {
 
     val writer = indexwriters.get();
@@ -35,7 +49,7 @@ class IndexController(private val indexconfig: IndexConfig) {
 
       val aname = indexconfig.analyzer;
       val analyzer = SystemContext.analyzers.getOrElse(aname, throw new MineralExpcetion(0, s"没有找到对应的分词器${aname}"))
-      val iwc = new IndexWriterConfig(Version.LUCENE_4_9,
+      val iwc = new IndexWriterConfig(indexconfig.version,
         analyzer);
       iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
       val w = new IndexWriter(fs, iwc);
@@ -60,6 +74,7 @@ class IndexController(private val indexconfig: IndexConfig) {
 
       val fs = FSDirectory.open(dir);
       val r = (IndexWriter.isLocked(fs));
+
       fs.close();
       !r;
     });
@@ -67,9 +82,12 @@ class IndexController(private val indexconfig: IndexConfig) {
     if (found.isDefined) {
       FSDirectory.open(found.get);
     } else {
+      //创建新的子索引文件夹
       val uuid = UUID.randomUUID().toString().replace("-", "");
-      FSDirectory.open(new File(root + "/" + uuid));
 
+      val ret = FSDirectory.open(new File(root + "/" + uuid));
+      childrenIndexDirs = listChildrenDirs(root);
+      ret;
     }
   }
 }

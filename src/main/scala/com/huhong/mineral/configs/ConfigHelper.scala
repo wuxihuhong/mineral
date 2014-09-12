@@ -6,24 +6,32 @@ import com.huhong.mineral.configs.IndexConfig
 import java.util.Date
 import com.huhong.mineral.error.MineralExpcetion
 import com.huhong.mineral.util.Imports._
+import org.apache.lucene.util.Version
 
 object ConfigHelper {
+
   @throws(classOf[MineralExpcetion])
-  def createIndex(name: String, targetDir: String, analyzer: String, writeThreadCount: Int = 20) = {
+  def createIndex(conf: IndexConfig): IndexConfig = {
     val rets = configDB.query(new Predicate[IndexConfig]() {
 
       def `match`(c: IndexConfig): Boolean = {
-        c.name.equals(name);
+        c.name.equals(conf.name);
       }
     });
     if (rets.size() > 0) {
       throws(0, "索引已经存在!");
     }
-    val c = IndexConfig(name, targetDir, analyzer, writeThreadCount, true, new Date, 0);
 
-    configDB.store(c);
+    configDB.store(conf);
     configDB.commit();
-    c;
+    conf;
+  }
+
+  @throws(classOf[MineralExpcetion])
+  def createIndex(name: String, targetDir: String, analyzer: String, writeThreadCount: Int = 20, version: Version = Version.LUCENE_40): IndexConfig = {
+
+    val c = IndexConfig(name, targetDir, analyzer, writeThreadCount, writeThreadCount * 10, true, new Date, 0, version);
+    createIndex(c);
   }
 
   def getConfig(name: String) = {

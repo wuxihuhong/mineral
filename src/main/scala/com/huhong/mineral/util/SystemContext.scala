@@ -12,12 +12,18 @@ import org.apache.lucene.analysis.cn.ChineseAnalyzer
 object SystemContext {
 
   val analyzers = Map[String, Analyzer]()
-  analyzers += ("default" -> new SimpleAnalyzer(Version.LUCENE_4_9));
+  analyzers += ("english" -> new SimpleAnalyzer(Version.LUCENE_4_9));
   analyzers += ("chinese" -> new ChineseAnalyzer());
+  analyzers += ("default" -> new ChineseAnalyzer());
   var sysInterpreter: ILoop = _;
 
   var configDB: ObjectContainer = _;
 
   lazy val actors = ActorSystem("root");
+
+  object Config {
+    var tryWriteDocmuentTimes: Int = 3;
+    var defaultSearchMaxDocs: Int = 5000;
+  }
 
 }

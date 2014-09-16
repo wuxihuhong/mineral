@@ -26,16 +26,22 @@ import java.util.UUID
 import org.apache.lucene.document.FieldType
 import com.huhong.mineral.messages.Documents
 import org.apache.lucene.util.Version
+import org.apache.lucene.search.TermQuery
+import org.apache.lucene.index.Term
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.duration._
+import com.huhong.mineral.results.Result
+import scala.concurrent.ExecutionContext
+import akka.dispatch._
+import com.huhong.mineral.util.{ SystemContext ⇒ system }
+import com.huhong.mineral.messages.TestString
+import java.text.SimpleDateFormat
+import org.apache.lucene.util.Version
+import org.apache.lucene.index.IndexWriterConfig
+import java.util.Date
 
 object Test extends App {
-  SystemContext.configDB = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "config.yap");
-  Mineral.start;
-
-//  import com.huhong.mineral.commands.Imports._
-//  createIndex("test", "/Users/admin/Documents/mineral/mineral/testindex", "default", 10, Version.LUCENE_30);
-//
-//  exit;
-  val index = Mineral.getIndex("test");
 
   val doc = new Document;
   val fd = new FieldType;
@@ -48,11 +54,127 @@ object Test extends App {
   val contentf = new Field("content", "胡宏伟大啊！", fd);
   doc.add(titlef);
   doc.add(contentf);
+  //  val fs = FSDirectory.open(new java.io.File("/Users/admin/Documents/mineral/mineral/testindex2"));
+  //  val iwc = new IndexWriterConfig(Version.LUCENE_30, SystemContext.analyzers.get("default").get);
+  //  iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+  //  val writer = new IndexWriter(fs, iwc);
+  //
+  //  val start1 = System.currentTimeMillis();
+  //  for (i ← 0 until 5000) {
+  //    writer.addDocument(doc);
+  //    writer.commit();
+  //  }
+  //
+  //  println((System.currentTimeMillis() - start1)/1000 + "s");
+  //  System.in.read();
+  //  writer.close();
+  //
+  //  exit;
+  SystemContext.configDB = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "config.yap");
+  Mineral.start;
 
+  //    import com.huhong.mineral.commands.Imports._
+  //    createIndex("test2", "/Users/admin/Documents/mineral/mineral/testindex2", "default", 20, Version.LUCENE_30);
+  //    createIndex("test", "/Users/admin/Documents/mineral/mineral/testindex", "default", 20, Version.LUCENE_30);
+  //    exit;
+
+  val index = Mineral.getIndex("test");
+  val index2 = Mineral.getIndex("test2");
+
+  implicit val timeout = new Timeout(30 seconds)
+  val name = index.indexConfig.name;
+  implicit def executor: ExecutionContext = index.system.dispatchers.lookup(s"$name-thread-pool-dispatcher");
+
+  val q = new TermQuery(new Term("content", "大"));
   val docs = Documents(Array(doc))
-  for (i ← 0 until 5)
-    index ! docs;
 
+  val start = System.currentTimeMillis();
+
+  for (i ← 0 until 5000) {
+
+    index.actor ! docs;
+
+    //Thread.sleep(500);
+    //   
+    //Thread.sleep(500);
+    //    val f = index.actor ? q;
+    //
+    //    f.onSuccess {
+    //      case result: Array[Document] ⇒
+    //        {
+    //
+    //          println("结果:" + result.length)
+    //
+    //        }
+    //    }
+    //
+    //    f.onFailure {
+    //      case e: Exception ⇒ {
+    //        e.printStackTrace();
+    //      }
+    //    }
+
+  }
+  //
+
+  System.in.read();
+  println("开始时间:" + new Date(start));
+  Mineral.shutdown;
+  //exit;
+  //
+  //  for (i ← 0 until 500) {
+  //
+  //    index.writer ! docs;
+  //
+  //    val f = index.reader ? q;
+  //
+  //    f.onSuccess {
+  //      case result: Array[Result] ⇒
+  //        {
+  //          println("结果:" + result.length);
+  //        }
+  //    }
+  //
+  //    f.onFailure {
+  //      case e: Exception ⇒ {
+  //        e.printStackTrace();
+  //      }
+  //    }
+
+  //    val f2 = index2.reader ? q;
+  //
+  //    f2.onSuccess {
+  //      case result: Array[Result] ⇒
+  //        {
+  //
+  //        }
+  //    }
+  //  }
+  //  System.in.read();
+  //
+  //  Mineral.shutdown;
+  //
+  //  System.in.read();
+  //  Thread.sleep(5000);
+  //  val f = index.reader ? q;
+  //  f.onSuccess {
+  //    case result: Array[Result] ⇒
+  //      {
+  //        for (i ← 0 until 10) {
+  //          index.writer ! docs;
+  //
+  //        }
+  //      }
+  //  }
+  //
+  //  Thread.sleep(5000);
+  //  val f2 = index.reader ? q;
+  //  f2.onSuccess {
+  //    case result: Array[Result] ⇒
+  //      {
+  //        //println("结果:" + result.length);
+  //      }
+  //  }
   //  val fs = FSDirectory.open(new File("/Users/admin/Documents/mineral/mineral/testindex/1"));
   //  println(fs.getLockID());
   //

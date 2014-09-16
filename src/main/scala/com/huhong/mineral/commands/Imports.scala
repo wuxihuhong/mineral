@@ -5,7 +5,7 @@ import com.huhong.mineral.configs.IndexConfig
 import java.util.Date
 import com.db4o.query.Predicate
 import com.huhong.mineral.util.Imports._
-import com.huhong.mineral.util.ConfigHelper
+import com.huhong.mineral.configs.ConfigHelper
 import com.huhong.mineral.Mineral
 import org.apache.lucene.util.Version
 

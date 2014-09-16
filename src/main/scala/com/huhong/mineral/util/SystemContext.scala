@@ -8,6 +8,7 @@ import org.apache.lucene.util.Version
 import org.apache.lucene.analysis.Analyzer
 import scala.collection.mutable.Map
 import org.apache.lucene.analysis.cn.ChineseAnalyzer
+import com.typesafe.config.ConfigFactory
 
 object SystemContext {
 
@@ -19,11 +20,17 @@ object SystemContext {
 
   var configDB: ObjectContainer = _;
 
-  lazy val actors = ActorSystem("root");
+  //lazy val actors = ActorSystem("root", ConfigFactory.load(customConf));
 
   object Config {
+    //尝试写索引次数(如果出错)
     var tryWriteDocmuentTimes: Int = 3;
+    //搜索的默认返回数据行数
     var defaultSearchMaxDocs: Int = 5000;
+    //cpu核心数，要保障高性能请合理配置
+    var cpus: Int = 4;
+  	//提交数
+    var commits:Long=1000;
   }
 
 }

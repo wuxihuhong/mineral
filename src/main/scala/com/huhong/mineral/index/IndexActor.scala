@@ -8,61 +8,104 @@ import org.apache.lucene.search.Query
 import org.apache.lucene.search.SearcherManager
 import org.apache.lucene.search.IndexSearcher
 import org.apache.lucene.index.MultiReader
+import com.huhong.mineral.results.Result
+import akka.actor.ActorRef
+import akka.actor.ActorSystem
+import com.huhong.mineral.configs.IndexConfig
+import org.apache.lucene.index.IndexReader
 
-object IndexWriterActor {
-  val logger = LoggerFactory.getLogger(classOf[IndexWriterActor]);
-
-}
-
-class IndexReaderActor(val inxController: IndexController) extends Actor {
-  def receive = {
-    case q: Query ⇒ {
-      val readers = inxController.getReader;
-      readers.refreshReaders;
-      val searcher = new IndexSearcher(new MultiReader(readers.indexReaders: _*))
-      val docs = searcher.search(q, SystemContext.Config.defaultSearchMaxDocs);
-      docs.scoreDocs.map(d ⇒ {
-        val doc=searcher.doc(d.doc);
-        
-      });
-    }
-  }
+object IndexActor {
+  val logger = LoggerFactory.getLogger(classOf[IndexActor]);
 
 }
 
-class IndexWriterActor(val indexController: IndexController) extends Actor {
+class Index(val indexConfig: IndexConfig, val system: ActorSystem, val actor: ActorRef, val indexController: IndexController);
 
+//class IndexReaderActor(val inxController: IndexController) extends Actor {
+//  def receive = {
+//    case q: Query ⇒ {
+//
+//      val readers = inxController.getReader;
+//
+//      val searcher = new IndexSearcher(new MultiReader(readers: _*))
+//      val docs = searcher.search(q, SystemContext.Config.defaultSearchMaxDocs);
+//
+//      val ret = docs.scoreDocs.map(d ⇒ {
+//        searcher.doc(d.doc);
+//
+//      });
+//
+//      sender ! ret;
+//    }
+//    case t: TestString ⇒ {
+//      IndexReaderActor.logger.info(t.string);
+//    }
+//    case _ ⇒ {
+//      println("未知的命令!");
+//    }
+//  }
+//
+//}
+
+class IndexActor(val indexController: IndexController) extends Actor {
+
+
+  @volatile private var shutdowning = false;
   def receive = {
     case docs: Documents ⇒ {
-      val writer = indexController.getWriter;
+
+      val conn = indexController.getConnection;
       try {
+        val writer = conn.writer;
+
         docs.datas.foreach(d ⇒ {
           writer.addDocument(d);
-
+          IndexActor.logger.debug(d.toString() + "--->" + conn.realDir);
         });
-        writer.commit();
+        conn.addWrited(docs.datas.length);
+
       } catch {
         case e: Throwable ⇒ {
-          writer.rollback();
+
           docs.error = e;
           docs.errorCount = docs.errorCount + 1;
 
           if (docs.errorCount > SystemContext.Config.tryWriteDocmuentTimes) {
-            IndexWriterActor.logger.error("写入索引文档错误！", e);
+            IndexActor.logger.error("写入索引文档错误！", e);
           } else {
             self ! docs;
           }
         }
+      } finally {
+        indexController.returnConnection(conn);
       }
+
+    }
+    case q: Query ⇒ {
+
+      val readers = indexController.getReader;
+
+      val searcher = new IndexSearcher(new MultiReader(readers: _*))
+      val docs = searcher.search(q, SystemContext.Config.defaultSearchMaxDocs);
+
+      println("命中:"+docs.totalHits);
+      val ret = docs.scoreDocs.map(d ⇒ {
+        searcher.doc(d.doc);
+
+      });
+
+      sender ! ret;
     }
 
-    case str: String ⇒ {
-
-      val writer = indexController.getWriter;
-
-      println(Thread.currentThread().getName() + ":" + writer)
-      Thread.sleep(5000);
+    case t: TestString ⇒ {
+      IndexActor.logger.info(t.string);
+    }
+    case _ ⇒ {
+      println("未知的命令!");
     }
   }
+
 }
+
+
 

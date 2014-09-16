@@ -6,7 +6,7 @@ import java.util.{ Map ⇒ JMap }
 import com.huhong.mineral.configs.IndexConfig
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ConcurrentMap
-import com.huhong.mineral.util.ConfigHelper
+import com.huhong.mineral.configs.ConfigHelper
 import org.apache.commons.io.FileUtils
 import org.apache.lucene.store.FSDirectory
 import java.io.File
@@ -20,75 +20,65 @@ import org.apache.commons.io.filefilter.TrueFileFilter
 import org.apache.commons.io.filefilter.DirectoryFileFilter
 import java.util.UUID
 import org.apache.lucene.index.IndexReader
+import java.util.concurrent.CopyOnWriteArrayList
+import com.huhong.mineral.Mineral
+import org.apache.lucene.index.DirectoryReader
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig
+import com.huhong.mineral.pool.IndexConnectionFactory
+import com.huhong.mineral.pool.IndexConnectionPool
 
 //控制索引的所有witer
 class IndexController(private val indexconfig: IndexConfig) {
-  val indexwriters: ThreadLocal[IndexWriter] = new ThreadLocal[IndexWriter];
-  val indexreaders: ThreadLocal[IndexReaderHolder] = new ThreadLocal[IndexReaderHolder];
-
-  @volatile var childrenIndexDirs: List[File] = listChildrenDirs(indexconfig.getTargetDir);
-
+  val poolconf = new GenericObjectPoolConfig();
+  poolconf.setMaxTotal(indexconfig.writeThreadCount);
+  poolconf.setMaxIdle(indexconfig.writeThreadCount);
+  val indexConnFactory = new IndexConnectionFactory(indexconfig);
+  val indexConnPool = new IndexConnectionPool(indexConnFactory, poolconf);
   def getReader() = {
-    var readerHolder = indexreaders.get();
-    if (readerHolder == null) {
-      val rh = new IndexReaderHolder(childrenIndexDirs);
-      indexreaders.set(rh);
-      readerHolder = rh;
-    }
-    readerHolder;
 
-  }
-  def getWriter() = {
-
-    val writer = indexwriters.get();
-
-    if (writer == null) {
-      //println(Thread.currentThread().getName());
-
-      val fs = getIndexDirByNoUsed(indexconfig.getTargetDir);
-
-      val aname = indexconfig.analyzer;
-      val analyzer = SystemContext.analyzers.getOrElse(aname, throw new MineralExpcetion(0, s"没有找到对应的分词器${aname}"))
-      val iwc = new IndexWriterConfig(indexconfig.version,
-        analyzer);
-      iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-      val w = new IndexWriter(fs, iwc);
-
-      indexwriters.set(w);
-      w;
-    } else {
-      writer;
-    }
-
+    indexConnPool.getReaders;
   }
 
-  private def listChildrenDirs(root: String) = {
-    val rets = FileUtils.listFilesAndDirs(new File(root), new NotFileFilter(TrueFileFilter.INSTANCE), DirectoryFileFilter.DIRECTORY)
-    rets.filter(f ⇒ { !f.getPath.equals(root) }).toList;
-
+  def getConnection() = {
+    indexConnPool.borrowObject();
   }
 
-  private def getIndexDirByNoUsed(root: String) = {
-    val currents = listChildrenDirs(root);
-    val found = currents.find(dir ⇒ {
+  def returnConnection(conn: IndexConnection) = {
+    indexConnPool.returnObject(conn);
+  }
 
-      val fs = FSDirectory.open(dir);
-      val r = (IndexWriter.isLocked(fs));
+  //  private def listChildrenDirs(root: String) = {
+  //    val rets = FileUtils.listFilesAndDirs(new File(root), new NotFileFilter(TrueFileFilter.INSTANCE), DirectoryFileFilter.DIRECTORY)
+  //    rets.filter(f ⇒ { !f.getPath.equals(root) }).toList;
+  //
+  //  }
+  //
+  //  private def getIndexDirByNoUsed(root: String): (FSDirectory, Boolean) = {
+  //    val currents = listChildrenDirs(root);
+  //    val found = currents.find(dir ⇒ {
+  //
+  //      val fs = FSDirectory.open(dir);
+  //      val r = (IndexWriter.isLocked(fs));
+  //
+  //      fs.close();
+  //      !r;
+  //    });
+  //
+  //    if (found.isDefined) {
+  //      (FSDirectory.open(found.get), false);
+  //    } else {
+  //      //创建新的子索引文件夹
+  //      val uuid = UUID.randomUUID().toString().replace("-", "");
+  //
+  //      val ret = FSDirectory.open(new File(root + "/" + uuid));
+  //
+  //      (ret, true);
+  //    }
+  //  }
 
-      fs.close();
-      !r;
-    });
-
-    if (found.isDefined) {
-      FSDirectory.open(found.get);
-    } else {
-      //创建新的子索引文件夹
-      val uuid = UUID.randomUUID().toString().replace("-", "");
-
-      val ret = FSDirectory.open(new File(root + "/" + uuid));
-      childrenIndexDirs = listChildrenDirs(root);
-      ret;
-    }
+  def shutdown() = {
+    if (!indexConnPool.isClosed())
+      indexConnPool.close;
   }
 }
 

@@ -1,4 +1,4 @@
-package com.huhong.mineral.util
+package com.huhong.mineral.configs
 
 import com.huhong.mineral.util.SystemContext._
 import com.db4o.query.Predicate
@@ -30,7 +30,8 @@ object ConfigHelper {
   @throws(classOf[MineralExpcetion])
   def createIndex(name: String, targetDir: String, analyzer: String, writeThreadCount: Int = 20, version: Version = Version.LUCENE_40): IndexConfig = {
 
-    val c = IndexConfig(name, targetDir, analyzer, writeThreadCount, writeThreadCount * 10, true, new Date, 0, version);
+    val c = IndexConfig(name, targetDir, analyzer, writeThreadCount, true, new Date, 0, version);
+    c.printConfig;
     createIndex(c);
   }
 

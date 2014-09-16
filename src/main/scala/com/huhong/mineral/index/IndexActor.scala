@@ -49,7 +49,6 @@ class Index(val indexConfig: IndexConfig, val system: ActorSystem, val actor: Ac
 
 class IndexActor(val indexController: IndexController) extends Actor {
 
-
   @volatile private var shutdowning = false;
   def receive = {
     case docs: Documents ⇒ {
@@ -77,24 +76,28 @@ class IndexActor(val indexController: IndexController) extends Actor {
           }
         }
       } finally {
-        indexController.returnConnection(conn);
+        indexController.releaseConnection(conn);
       }
 
     }
     case q: Query ⇒ {
+      val conn = indexController.getConnection;
+      try {
+        val readers = conn.getReaders;
 
-      val readers = indexController.getReader;
+        val searcher = new IndexSearcher(new MultiReader(readers: _*))
+        val docs = searcher.search(q, SystemContext.Config.defaultSearchMaxDocs);
 
-      val searcher = new IndexSearcher(new MultiReader(readers: _*))
-      val docs = searcher.search(q, SystemContext.Config.defaultSearchMaxDocs);
+        println("命中:" + docs.totalHits);
+        val ret = docs.scoreDocs.map(d ⇒ {
+          searcher.doc(d.doc);
 
-      println("命中:"+docs.totalHits);
-      val ret = docs.scoreDocs.map(d ⇒ {
-        searcher.doc(d.doc);
+        });
 
-      });
-
-      sender ! ret;
+        sender ! ret;
+      } finally {
+        indexController.releaseConnection(conn);
+      }
     }
 
     case t: TestString ⇒ {

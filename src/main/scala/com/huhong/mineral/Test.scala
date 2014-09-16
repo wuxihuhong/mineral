@@ -97,16 +97,16 @@ object Test extends App {
     //Thread.sleep(500);
     //   
     //Thread.sleep(500);
-    //    val f = index.actor ? q;
-    //
-    //    f.onSuccess {
-    //      case result: Array[Document] ⇒
-    //        {
-    //
-    //          println("结果:" + result.length)
-    //
-    //        }
-    //    }
+    val f = index.actor ? q;
+
+    f.onSuccess {
+      case result: Array[Document] ⇒
+        {
+
+          println("结果:" + result.length)
+
+        }
+    }
     //
     //    f.onFailure {
     //      case e: Exception ⇒ {

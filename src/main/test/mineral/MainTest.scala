@@ -14,23 +14,98 @@ import com.huhong.mineral.pool.IndexConnectionFactory
 import com.huhong.mineral.pool.IndexConnectionFactory
 import com.huhong.mineral.pool.IndexConnectionPool
 import com.huhong.mineral.configs.ConfigHelper
+import org.junit.Before
+import com.huhong.mineral.Mineral
+import org.junit.After
+import org.apache.lucene.search.TermQuery
+import org.apache.lucene.index.Term
+import akka.pattern.ask
+import akka.util.Timeout
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext
+import akka.dispatch._
+import com.huhong.mineral.index.IndexController
+import org.apache.lucene.store.FSDirectory
+import java.io.File
+import org.apache.lucene.index.DirectoryReader
+import org.apache.lucene.search.IndexSearcher
+import org.apache.lucene.index.MultiReader
 
 class MainTest {
 
-  SystemContext.configDB = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "config.yap");
-  val indexConf = ConfigHelper.getConfig("test");
-
-  val conf = new GenericObjectPoolConfig();
-  conf.setMaxTotal(indexConf.getWriteThreadCount);
-  conf.setMaxIdle(indexConf.getWriteThreadCount);
-  val indexConnFactory = new IndexConnectionFactory(indexConf);
-  val indexConnPool = new IndexConnectionPool(indexConnFactory, conf);
+  //@Before
+  def init(): Unit = {
+    SystemContext.configDB = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "config.yap");
+    Mineral.start;
+  }
 
   @Test
-  def poolTest(): Unit = {
-    val conn = indexConnPool.borrowObject();
-    println("取出:" + conn.realDir);
-    indexConnPool.returnObject(conn);
-    indexConnPool.close;
+  def test2(): Unit = {
+    val dir = "/Users/admin/Documents/mineral/mineral/testindex";
+    val readers = (1 to 20) map { i ⇒
+      {
+        val fs = FSDirectory.open(new File(dir + "/" + i));
+        DirectoryReader.open(fs);
+      }
+    }
+    val q = new TermQuery(new Term("content", "大"));
+
+    val searcher = new IndexSearcher(new MultiReader(readers: _*))
+    val start = System.currentTimeMillis();
+    val docs = searcher.search(q, SystemContext.Config.defaultSearchMaxDocs);
+
+    println("命中:" + docs.totalHits);
+    val ret = docs.scoreDocs.map(d ⇒ {
+      searcher.doc(d.doc);
+
+    });
+    val end = System.currentTimeMillis();
+    println((end - start) + "ms");
+  }
+
+  def test(): Unit = {
+    implicit val timeout = new Timeout(30 seconds)
+    val index = Mineral.getIndex("test");
+    val name = index.indexConfig.name;
+    implicit def executor: ExecutionContext = index.system.dispatchers.lookup(s"$name-thread-pool-dispatcher");
+
+    val q = new TermQuery(new Term("content", "大"));
+
+    for (i ← 0 until 2) {
+      spawn {
+        val start = System.currentTimeMillis();
+        val f = index.actor ? q;
+        f onSuccess {
+          case _ ⇒ {
+            val end = System.currentTimeMillis();
+            println("耗时:" + (end - start) + "ms");
+          }
+        }
+      }
+    }
+    System.in.read();
+  }
+
+  //  @Test
+  //  def test2(): Unit = {
+  //    val config = ConfigHelper.getConfig("test");
+  //    val ic = new IndexController(config);
+  //    for (i ← 0 until 21) {
+  //      spawn {
+  //        val o = ic.indexConnPool.borrowObject();
+  //        println(o.realDir);
+  //        Thread.sleep(1000);
+  //        ic.indexConnPool.returnObject(o);
+  //      }
+  //    }
+  //
+  //    System.in.read();
+  //    ic.indexConnPool.close;
+  //  }
+
+  //@After
+  def onExit(): Unit = {
+    Mineral.shutdown;
+    SystemContext.configDB.close();
   }
 }

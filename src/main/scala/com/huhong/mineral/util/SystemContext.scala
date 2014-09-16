@@ -29,8 +29,11 @@ object SystemContext {
     var defaultSearchMaxDocs: Int = 5000;
     //cpu核心数，要保障高性能请合理配置
     var cpus: Int = 4;
-  	//提交数
-    var commits:Long=1000;
+    //提交数 0立即提交
+    var commits: Long = 1000;
+
+    //重置reader的时间，0为根据变更重置
+    var reloadReaderInterval: Long = 0;
   }
 
 }

@@ -12,6 +12,7 @@ import com.huhong.mineral.error.MineralExpcetion
 import org.apache.lucene.index.IndexWriterConfig
 import org.apache.lucene.index.IndexWriter
 import org.slf4j.LoggerFactory
+import java.util.concurrent.CopyOnWriteArrayList
 
 object IndexConnectionFactory {
   private val logger = LoggerFactory.getLogger(classOf[IndexConnectionFactory]);
@@ -19,6 +20,7 @@ object IndexConnectionFactory {
 class IndexConnectionFactory(conf: IndexConfig) extends BasePooledObjectFactory[IndexConnection] {
   @volatile var index = 0;
 
+   val allIndexConnections = new CopyOnWriteArrayList[IndexConnection];
   def create(): IndexConnection = {
     index += 1;
     val dir = conf.getTargetDir + File.separatorChar + index;
@@ -31,7 +33,9 @@ class IndexConnectionFactory(conf: IndexConfig) extends BasePooledObjectFactory[
     val writer = new IndexWriter(fs, iwc);
 
     IndexConnectionFactory.logger.info("索引连接:" + dir);
-    new IndexConnection(writer, conf, dir);
+    val conn = new IndexConnection(writer, conf, dir,this);
+    allIndexConnections.add(conn);
+    conn;
   }
 
   def wrap(conn: IndexConnection): PooledObject[IndexConnection] = {
@@ -42,19 +46,19 @@ class IndexConnectionFactory(conf: IndexConfig) extends BasePooledObjectFactory[
     val conn = pooledConn.getObject();
     conn.writer.commit();
     conn.writer.close();
-    conn.getReader.close();
-    IndexConnectionFactory.logger.info("关闭索引连接:" + conn.realDir);
 
+    IndexConnectionFactory.logger.info("关闭索引连接:" + conn.realDir);
+    allIndexConnections.remove(conn);
   }
 
   override def passivateObject(pooledConn: PooledObject[IndexConnection]): Unit = {
     val conn = pooledConn.getObject();
 
-  
     if (conn.getWrited >= SystemContext.Config.commits) {
       conn.writer.commit();
       IndexConnectionFactory.logger.info("数据被提交：" + conn.realDir);
       conn.resetWrited;
     }
   }
+
 }

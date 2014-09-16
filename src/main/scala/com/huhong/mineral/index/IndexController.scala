@@ -34,16 +34,14 @@ class IndexController(private val indexconfig: IndexConfig) {
   poolconf.setMaxIdle(indexconfig.writeThreadCount);
   val indexConnFactory = new IndexConnectionFactory(indexconfig);
   val indexConnPool = new IndexConnectionPool(indexConnFactory, poolconf);
-  def getReader() = {
 
-    indexConnPool.getReaders;
-  }
+  
 
   def getConnection() = {
     indexConnPool.borrowObject();
   }
 
-  def returnConnection(conn: IndexConnection) = {
+  def releaseConnection(conn: IndexConnection) = {
     indexConnPool.returnObject(conn);
   }
 

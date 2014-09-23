@@ -2,11 +2,11 @@ package com.huhong.mineral.configs
 
 import com.huhong.mineral.util.SystemContext._
 import com.db4o.query.Predicate
-import com.huhong.mineral.configs.IndexConfig
 import java.util.Date
 import com.huhong.mineral.error.MineralExpcetion
 import com.huhong.mineral.util.Imports._
 import org.apache.lucene.util.Version
+import com.huhong.mineral.Mineral
 
 object ConfigHelper {
 
@@ -23,15 +23,18 @@ object ConfigHelper {
     }
 
     configDB.store(conf);
+   
+    
     configDB.commit();
+     Mineral.logger.info("创建索引:"+conf.toString);
     conf;
   }
 
   @throws(classOf[MineralExpcetion])
-  def createIndex(name: String, targetDir: String, analyzer: String, writeThreadCount: Int = 20, version: Version = Version.LUCENE_40): IndexConfig = {
+  def createIndex(name: String, targetDir: String, analyzer: String, writerCount: Int = 20, version: Version = Version.LUCENE_40): IndexConfig = {
 
-    val c = IndexConfig(name, targetDir, analyzer, writeThreadCount, true, new Date, 0, version);
-    c.printConfig;
+    val c = IndexConfig(name, targetDir, analyzer, writerCount, writerCount * 2, true, new Date, 0, version, readerCount = writerCount * 3);
+    
     createIndex(c);
   }
 

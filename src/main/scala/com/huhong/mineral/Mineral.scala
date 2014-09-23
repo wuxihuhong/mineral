@@ -20,6 +20,12 @@ import scala.concurrent.ExecutionContext
 import com.huhong.mineral.index.Index
 import scala.concurrent.Future
 import akka.actor.PoisonPill
+import akka.actor.Actor._
+import akka.actor.Address
+import akka.remote.RemoteScope
+import akka.actor.Deploy
+import akka.remote.RemoteScope
+import com.db4o.Db4oEmbedded
 
 object Mineral {
   val logger = LoggerFactory.getLogger("ROOT");
@@ -83,27 +89,70 @@ object Mineral {
         val ic = new IndexController(config);
         val name = config.name;
 
-        val maxWriteCount = config.writeThreadCount;
+        val maxThreadCount = config.coreThreadCount;
+        val maxReaderCount = config.readerCount;
+        val hostname = config.hostname;
+        val port = config.port;
+        val remoteConfig = if (config.remote) {
+          s"""actor {
+        					provider = "akka.remote.RemoteActorRefProvider"
+          				}
+        				remote { 
+        					enabled-transports = ["akka.remote.netty.tcp"]
+							netty.tcp { 
+								hostname = $hostname
+								port = $port
+								
+								maximum-frame-size = 20MiB
+							} 
+							
+    						
+        				} """;
+        } else {
+          "";
+        }
         val confstr = s"""
-       
-		     $name-thread-pool-dispatcher {
-		     			mailbox-type = "com.huhong.mineral.index.IndexMailBox"
-		        		type = Dispatcher
-		        		executor = "thread-pool-executor"
-		        		thread-pool-executor {
-		        			core-pool-size-max = $maxWriteCount
-		        		}
-		        		throughput = 1
-		     }
-		    
+        	
+        		 mineral{
+        			akka{
+        				loglevel = "DEBUG"
+        				$remoteConfig
+        			}
+				     $name-thread-pool-dispatcher {
+				     			mailbox-type = "com.huhong.mineral.index.IndexMailBox"
+				        		type = Dispatcher
+				        		executor = "thread-pool-executor"
+				        		thread-pool-executor {
+				        			core-pool-size-max = $maxThreadCount
+				        		}
+				        		throughput = 1
+				     }
+				    
+				     $name-docloader-thread-pool-dispatcher {
+				     			mailbox-type = "com.huhong.mineral.index.IndexMailBox"
+				        		type = Dispatcher
+				        		executor = "thread-pool-executor"
+				        		thread-pool-executor {
+				        			core-pool-size-max = $maxReaderCount
+				        		}
+				        		throughput = 1
+				     }
+      
+    
+				 }	
+        		
        
         """;
         val akkaConfig = ConfigFactory.parseString(confstr)
-        val system = ActorSystem(name, ConfigFactory.load(akkaConfig));
 
-        val actorPropsWriter = Props(classOf[IndexActor], ic);
-        val actor = system.actorOf(actorPropsWriter.withRouter(RoundRobinRouter(maxWriteCount)).withDispatcher(s"$name-thread-pool-dispatcher"), config.name);
+        val system = ActorSystem("mineral", akkaConfig.getConfig("mineral"));
 
+        val actorPropsWriter =
+
+          Props(classOf[IndexActor], ic); //.withDeploy(Deploy(scope=RemoteScope(Address("akka.tcp","mineral","0.0.0.0",3000))));
+
+        val actor = system.actorOf(actorPropsWriter.withRouter(RoundRobinRouter(maxThreadCount)).withDispatcher(s"$name-thread-pool-dispatcher"), config.name);
+        Mineral.logger.info("启动actor:" + actor.path)
         val index = new Index(config, system, actor, ic);
 
         actors.put(config.name, index);
@@ -116,7 +165,7 @@ object Mineral {
   //启动索引核心
   @throws(classOf[MineralExpcetion])
   def start() = {
-
+    SystemContext.configDB = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "config.yap");
     logger.info("启动索引核心");
     val cnfs = ConfigHelper.getConfigs();
 
@@ -125,6 +174,7 @@ object Mineral {
 
       getIndex(c);
     })
+
   }
 
   def shutdown() = {
@@ -143,12 +193,13 @@ object Mineral {
           logger.warn("关闭上下文超时！");
         }
       }
-    
-      
+
       i._2.indexController.shutdown;
     })
 
     Mineral.logger.info("已经关闭索引上下文!");
 
+    SystemContext.configDB.close();
   }
+
 }

@@ -28,19 +28,22 @@ import com.huhong.mineral.pool.IndexConnectionFactory
 import com.huhong.mineral.pool.IndexConnectionPool
 
 //控制索引的所有witer
-class IndexController(private val indexconfig: IndexConfig) {
+class IndexController(val indexconfig: IndexConfig) {
   val poolconf = new GenericObjectPoolConfig();
-  poolconf.setMaxTotal(indexconfig.writeThreadCount);
-  poolconf.setMaxIdle(indexconfig.writeThreadCount);
+  poolconf.setMaxTotal(indexconfig.writerCount);
+  poolconf.setMaxIdle(indexconfig.writerCount);
   val indexConnFactory = new IndexConnectionFactory(indexconfig);
   val indexConnPool = new IndexConnectionPool(indexConnFactory, poolconf);
-
-  
 
   def getConnection() = {
     indexConnPool.borrowObject();
   }
 
+  
+  
+  
+  
+  
   def releaseConnection(conn: IndexConnection) = {
     indexConnPool.returnObject(conn);
   }

@@ -10,63 +10,64 @@ import org.apache.lucene.index.IndexReader
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.huhong.mineral.util.SystemContext
+import org.apache.lucene.search.Query
+import org.slf4j.LoggerFactory
 
+object IndexConnection {
+  val log = LoggerFactory.getLogger(classOf[IndexConnection]);
+}
 class IndexConnection(val writer: IndexWriter, val indexConf: IndexConfig, val realDir: String, val factory: IndexConnectionFactory) {
-  //private val lock = new ReentrantReadWriteLock();
+  private val lock = new ReentrantReadWriteLock();
 
   @volatile private var writeCount = 0
 
-  var oldReader: DirectoryReader = _;
-  openReader(false);
+  @volatile var oldReader: DirectoryReader = openReader(false);
 
   private def openReader(delete: Boolean) = {
 
-    oldReader = DirectoryReader.open(writer, delete);
+    DirectoryReader.open(writer, delete);
 
   }
 
   private def openIfChangedReader(delete: Boolean) = {
 
-    oldReader = DirectoryReader.openIfChanged(oldReader, writer, delete);
+    val newReader = DirectoryReader.openIfChanged(oldReader, writer, delete);
+    if (newReader != null) {
+      oldReader = newReader;
+    }
+  }
 
+  def delete(q: Query): Unit = {
+    factory.allIndexConnections.foreach(c ⇒ {
+      c.writer.deleteDocuments(q);
+
+      c.writer.commit();
+      IndexConnection.log.debug(c.realDir + "删除索引!");
+    })
   }
 
   def addWrited(count: Int) = {
 
-    //    try {
-    //      lock.writeLock().lock();
     writeCount = writeCount + count;
-    //    } finally {
-    //      lock.writeLock().unlock();
-    //    }
+
   }
 
   def resetWrited() = {
-    //    try {
-    //      lock.writeLock().lock();
+
     writeCount = 0
-    //    } finally {
-    //      lock.writeLock().unlock();
-    //    }
+
   }
 
   def getWrited() = {
-    //    try {
-    //      lock.readLock().lock();
+
     writeCount;
-    //    } finally {
-    //      lock.readLock().unlock();
-    //    }
+
   }
   protected def getMyReader = {
-    this.synchronized {
-      if (!oldReader.isCurrent()) {
-        openIfChangedReader(true)
 
-      }
-
-      oldReader;
-    }
+    if (!oldReader.isCurrent())
+      openIfChangedReader(false);
+    oldReader;
 
   }
 

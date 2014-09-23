@@ -26,7 +26,7 @@ object SystemContext {
     //尝试写索引次数(如果出错)
     var tryWriteDocmuentTimes: Int = 3;
     //搜索的默认返回数据行数
-    var defaultSearchMaxDocs: Int = 5000;
+    var defaultSearchMaxDocs: Int = 3000;
     //cpu核心数，要保障高性能请合理配置
     var cpus: Int = 4;
     //提交数 0立即提交
@@ -34,6 +34,12 @@ object SystemContext {
 
     //重置reader的时间，0为根据变更重置
     var reloadReaderInterval: Long = 0;
-  }
 
+    //加载doc详细内容的超时
+    var loadDocuemntTimeOut: Long = 16000;
+
+    var remoteAkka = true;
+
+  }
 }
+

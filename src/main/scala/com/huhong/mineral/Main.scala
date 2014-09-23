@@ -12,10 +12,12 @@ import scala.collection.mutable.Buffer
 import java.util.jar.Manifest
 import org.apache.commons.io.FileUtils
 import java.lang.Runnable
-import scalaj.collection.Imports._
+
 import com.huhong.mineral.util.SystemContext
 import com.db4o.Db4oEmbedded
 import org.slf4j.LoggerFactory
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object Main extends App {
 

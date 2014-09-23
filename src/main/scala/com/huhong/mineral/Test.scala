@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat
 import org.apache.lucene.util.Version
 import org.apache.lucene.index.IndexWriterConfig
 import java.util.Date
+import com.huhong.mineral.configs.IndexConfig
 
 object Test extends App {
 
@@ -72,14 +73,23 @@ object Test extends App {
   //  exit;
   SystemContext.configDB = Db4oEmbedded.openFile(Db4oEmbedded.newConfiguration(), "config.yap");
   Mineral.start;
+  val config = IndexConfig("test",
+    "/Users/admin/Documents/mineral/mineral/testindex",
+    "default",
+    20,
+    40,
+    true,
+    remote = true,
+    hostname = "127.0.0.1",
+    port = 1433, readerCount = 40)
 
-  //    import com.huhong.mineral.commands.Imports._
-  //    createIndex("test2", "/Users/admin/Documents/mineral/mineral/testindex2", "default", 20, Version.LUCENE_30);
-  //    createIndex("test", "/Users/admin/Documents/mineral/mineral/testindex", "default", 20, Version.LUCENE_30);
-  //    exit;
+  import com.huhong.mineral.commands.Imports._
+
+  createIndex(config);
+  exit;
 
   val index = Mineral.getIndex("test");
-  val index2 = Mineral.getIndex("test2");
+  //val index2 = Mineral.getIndex("test2");
 
   implicit val timeout = new Timeout(30 seconds)
   val name = index.indexConfig.name;
@@ -90,23 +100,23 @@ object Test extends App {
 
   val start = System.currentTimeMillis();
 
-  for (i ← 0 until 5000) {
+  for (i ← 0 until 25000) {
 
     index.actor ! docs;
 
     //Thread.sleep(500);
     //   
     //Thread.sleep(500);
-    val f = index.actor ? q;
-
-    f.onSuccess {
-      case result: Array[Document] ⇒
-        {
-
-          println("结果:" + result.length)
-
-        }
-    }
+    //    val f = index.actor ? q;
+    //
+    //    f.onSuccess {
+    //      case result: Array[Document] ⇒
+    //        {
+    //
+    //          println("结果:" + result.length)
+    //
+    //        }
+    //    }
     //
     //    f.onFailure {
     //      case e: Exception ⇒ {

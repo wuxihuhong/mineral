@@ -22,14 +22,18 @@ object Imports {
     SystemContext.configDB;
   }
 
-  def createIndex(name: String, targetDir: String, analyzer: String = "default", writeThreadCount: Int = 20, version: Version = Version.LUCENE_4_0) = {
+  def createIndex(name: String, targetDir: String, analyzer: String = "default", writerCount: Int = 20, version: Version = Version.LUCENE_4_0) = {
     try {
-      ConfigHelper.createIndex(name, targetDir, analyzer, writeThreadCount, version);
+      ConfigHelper.createIndex(name, targetDir, analyzer, writerCount, version);
     } catch {
       case e: Exception ⇒ {
         error(e);
       }
     }
+  }
+  
+  def createIndex(conf:IndexConfig)={
+    ConfigHelper.createIndex(conf);
   }
 
   def getConfig(name: String) = {

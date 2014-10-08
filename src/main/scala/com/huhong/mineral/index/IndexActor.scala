@@ -8,7 +8,7 @@ import org.apache.lucene.search.Query
 import org.apache.lucene.search.SearcherManager
 import org.apache.lucene.search.IndexSearcher
 import org.apache.lucene.index.MultiReader
-import com.huhong.mineral.results.Result
+
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
 import com.huhong.mineral.configs.IndexConfig
@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.StringWriter
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import java.io.ByteArrayOutputStream
-import com.huhong.mineral.results.DynamicResult
+
 import com.huhong.mineral.util.Imports._
 import org.apache.lucene.search.TopFieldCollector
 import org.apache.lucene.search.TopDocsCollector

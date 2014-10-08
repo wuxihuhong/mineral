@@ -17,7 +17,7 @@ import java.io.OutputStream
 import com.fasterxml.jackson.core.JsonEncoding
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.cedarsoftware.util.io.JsonWriter
-import org.apache.solr.common.SolrDocument
+
 
 object Imports {
 

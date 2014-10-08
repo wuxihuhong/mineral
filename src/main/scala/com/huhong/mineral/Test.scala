@@ -31,7 +31,7 @@ import org.apache.lucene.index.Term
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
-import com.huhong.mineral.results.Result
+
 import scala.concurrent.ExecutionContext
 import akka.dispatch._
 import com.huhong.mineral.util.{ SystemContext ⇒ system }
